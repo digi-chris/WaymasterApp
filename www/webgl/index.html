@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+    <title>CompuMaps</title>
+    <meta property="og:url" content="https://compumaps.azurewebsites.net/webgl/" />
+    <meta property="og:title" content="CompuMap Advanced Mapping" />
+    <meta property="og:description" content="It's 1984. GPS Satellite Location is the next big thing. Enter CompuMaps - the text-based mapping solution you never knew you needed!" />
+    <meta property="og:image" content="https://compumaps.azurewebsites.net/api/map/image?lat=51.437121499999996&lng=0.368803&dist=0.003706&cols=80&rows=25&user_lat=51.435198&user_lng=0.36597&logo=true" />
+    <meta charset='utf-8'>
+    <style>
+        body {
+            background-color: #000;
+            margin: 0px;
+            overflow: hidden;
+        }
+
+        #info {
+            color: #fff;
+            position: absolute;
+            bottom: 20px;
+            padding: 5px 20px;
+            font-family: 'Helvetica Neue', Arial, Helvetica, sans-serif;
+            font-weight: 100;
+            font-size: 18px;
+            background-color: #000;
+        }
+
+        a {
+            color: #DDD;
+        }
+    </style>
+</head>
+<body>
+
+	<div id='container'></div>
+
+	<script src='lib/three.min.js'></script>
+	<script src='lib/dat.gui.min.js'></script>
+	<script src='lib/stats.min.js'></script>
+	<script src='lib/postprocessing/EffectComposer.js'></script>
+	<script src='lib/postprocessing/RenderPass.js'></script>
+	<script src='lib/postprocessing/ShaderPass.js'></script>
+	<script src='lib/postprocessing/MaskPass.js'></script> 
+	<script src='lib/shaders/CopyShader.js'></script>
+	<script src='lib/shaders/FilmShader.js'></script>
+	<script src='lib/shaders/RGBShiftShader.js'></script>
+	<script src='js/BadTVShader.js'></script>
+	<script src='js/StaticShader.js'></script>
+
+    <script>
+        //Bad TV Shader Demo
+		//Using Three.js r.75
+		//by Felix Turner / www.airtight.cc / @felixturner
+
+		var camera, scene, renderer;
+		var video, videoTexture,videoMaterial;
+		var composer;
+		var shaderTime = 0;
+		var badTVParams, badTVPass;
+		var staticParams, staticPass;
+		var rgbParams, rgbPass;
+		var filmParams, filmPass;
+		var renderPass, copyPass;
+		var gui;
+		var pnoise, globalParams;
+        var planeGeometry;
+        var plane;
+        video = new Image();
+
+		//init();
+		//animate();
+
+		function init() {
+
+			camera = new THREE.PerspectiveCamera(55, 1080/ 720, 20, 3000);
+			camera.position.z = 1000;
+			scene = new THREE.Scene();
+
+			//Load Video
+			//video = new Image(); // document.createElement( 'video' );
+			//video.loop = true;
+			//video.src = 'res/fits.mp4';
+			//video.play();
+
+            //var rows = 25;
+            //var cols = 80;
+            //var lat = 51.435198;
+            //var lng = 0.36597;
+            //var dist = 0.003706;
+
+            //video.src = "/api/map/image?lat=" + lat + "&lng=" + lng + "&dist=" + dist + "&cols=" + cols + "&rows=" + rows;
+
+			//Use webcam
+			// video = document.createElement('video');
+			// video.width = 320;
+			// video.height = 240;
+			// video.autoplay = true;
+			// video.loop = true;
+			// //Webcam video
+			// window.URL = window.URL || window.webkitURL;
+			// navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia;
+			// //get webcam
+			// navigator.getUserMedia({
+			// 	video: true
+			// }, function(stream) {
+			// 	//on webcam enabled
+			// 	video.src = window.URL.createObjectURL(stream);
+			// }, function(error) {
+			// 	prompt.innerHTML = 'Unable to capture WebCam. Please reload the page.';
+			// });
+
+			//init video texture
+			videoTexture = new THREE.Texture( video );
+			videoTexture.minFilter = THREE.LinearFilter;
+			videoTexture.magFilter = THREE.LinearFilter;
+
+			videoMaterial = new THREE.MeshBasicMaterial( {
+				map: videoTexture
+			} );
+
+			//Add video plane
+			planeGeometry = new THREE.PlaneGeometry( 100, 100 ,1,1 );
+			plane = new THREE.Mesh( planeGeometry, videoMaterial );
+			scene.add( plane );
+			plane.z = 0;
+			//plane.scale.x = plane.scale.y = 1.45;
+            plane.scale.x = window.innerWidth / 100;
+            plane.scale.y = window.innerHeight / 100;
+
+			//add stats
+			//stats = new Stats();
+			//stats.domElement.style.position = 'absolute';
+			//stats.domElement.style.top = '0px';
+			//container.appendChild( stats.domElement );
+
+			//init renderer
+			renderer = new THREE.WebGLRenderer();
+			renderer.setSize( 800, 600 );
+			document.body.appendChild( renderer.domElement );
+
+			//POST PROCESSING
+			//Create Shader Passes
+			renderPass = new THREE.RenderPass( scene, camera );
+			badTVPass = new THREE.ShaderPass( THREE.BadTVShader );
+			rgbPass = new THREE.ShaderPass( THREE.RGBShiftShader );
+			filmPass = new THREE.ShaderPass( THREE.FilmShader );
+			staticPass = new THREE.ShaderPass( THREE.StaticShader );
+			copyPass = new THREE.ShaderPass( THREE.CopyShader );
+
+			//set shader uniforms
+			filmPass.uniforms.grayscale.value = 0;
+
+			//Init DAT GUI control panel
+			badTVParams = {
+				mute:true,
+				show: true,
+				distortion: 0.4,
+				distortion2: 0.6,
+				speed: 0.02,
+				rollSpeed: 0
+			};
+
+			staticParams = {
+				show: true,
+				amount:0.09,
+				size:4.0
+			};
+
+			rgbParams = {
+				show: true,
+				amount: 0.0033,
+				angle: 0.2,
+			};
+
+			filmParams = {
+				show: true,
+				count: window.innerHeight * 2,
+				sIntensity: 0.8,
+				nIntensity: 0.7
+			};
+
+			/*gui = new dat.GUI();
+
+			gui.add(badTVParams, 'mute').onChange(onToggleMute);
+
+			var f1 = gui.addFolder('Bad TV');
+			f1.add(badTVParams, 'show').onChange(onToggleShaders);
+			f1.add(badTVParams, 'distortion', 0.1, 20).step(0.1).listen().name('Thick Distort').onChange(onParamsChange);
+			f1.add(badTVParams, 'distortion2', 0.1, 20).step(0.1).listen().name('Fine Distort').onChange(onParamsChange);
+			f1.add(badTVParams, 'speed', 0.0,1.0).step(0.01).listen().name('Distort Speed').onChange(onParamsChange);
+			f1.add(badTVParams, 'rollSpeed', 0.0,1.0).step(0.01).listen().name('Roll Speed').onChange(onParamsChange);
+			f1.open();
+
+			var f2 = gui.addFolder('RGB Shift');
+			f2.add(rgbParams, 'show').onChange(onToggleShaders);
+			f2.add(rgbParams, 'amount', 0.0, 0.1).listen().onChange(onParamsChange);
+			f2.add(rgbParams, 'angle', 0.0, 2.0).listen().onChange(onParamsChange);
+			f2.open();
+
+			var f4 = gui.addFolder('Static');
+			f4.add(staticParams, 'show').onChange(onToggleShaders);
+			f4.add(staticParams, 'amount', 0.0,1.0).step(0.01).listen().onChange(onParamsChange);
+			f4.add(staticParams, 'size', 1.0,100.0).step(1.0).onChange(onParamsChange);
+			f4.open();
+
+			var f3 = gui.addFolder('Scanlines');
+			f3.add(filmParams, 'show').onChange(onToggleShaders);
+			f3.add(filmParams, 'count', 50, 1000).onChange(onParamsChange);
+			f3.add(filmParams, 'sIntensity', 0.0, 2.0).step(0.1).onChange(onParamsChange);
+			f3.add(filmParams, 'nIntensity', 0.0, 2.0).step(0.1).onChange(onParamsChange);
+			f3.open();
+
+			gui.close();*/
+
+			onToggleShaders();
+			onToggleMute();
+			onParamsChange();
+
+			window.addEventListener('resize', onResize, false);
+			//renderer.domElement.addEventListener('click', randomizeParams, false);
+			onResize();
+			//randomizeParams();
+
+            randomRoll();
+            randomDistort2();
+
+            setInterval(revertDist, 60);
+		}
+
+		function onParamsChange() {
+
+			//copy gui params into shader uniforms
+			badTVPass.uniforms[ 'distortion' ].value = badTVParams.distortion;
+			badTVPass.uniforms[ 'distortion2' ].value = badTVParams.distortion2;
+			badTVPass.uniforms[ 'speed' ].value = badTVParams.speed;
+			badTVPass.uniforms[ 'rollSpeed' ].value = badTVParams.rollSpeed;
+
+			staticPass.uniforms[ 'amount' ].value = staticParams.amount;
+			staticPass.uniforms[ 'size' ].value = staticParams.size;
+
+			rgbPass.uniforms[ 'angle' ].value = rgbParams.angle*Math.PI;
+			rgbPass.uniforms[ 'amount' ].value = rgbParams.amount;
+
+			filmPass.uniforms[ 'sCount' ].value = filmParams.count;
+			filmPass.uniforms[ 'sIntensity' ].value = filmParams.sIntensity;
+			filmPass.uniforms[ 'nIntensity' ].value = filmParams.nIntensity;
+		}
+
+        function randomRoll() {
+            badTVParams.rollSpeed = Math.random() + 1;
+            onParamsChange();
+            setTimeout(function() {
+                badTVParams.rollSpeed = 0;
+                onParamsChange();
+                setTimeout(randomRoll, (Math.random() * 40000) + 30000);
+            }, 250);
+        }
+
+        function randomDistort2() {
+            badTVParams.distortion = Math.random()*10+1;
+            badTVParams.distortion2 = Math.random()*10+2;
+            onParamsChange();
+            setTimeout(randomDistort2, (Math.random() * 30000) + 30000);
+        }
+
+        function revertDist() {
+            var startDist = 0.4;
+            var startDist2 = 0.6;
+            badTVParams.distortion += (startDist - badTVParams.distortion) / 5;
+            badTVParams.distortion2 += (startDist2 - badTVParams.distortion2) / 5;
+            onParamsChange();
+        }
+
+
+		function randomizeParams() {
+
+			if (Math.random() <0.2){
+				//you fixed it!
+				badTVParams.distortion = 0.1;
+				badTVParams.distortion2 =0.1;
+				badTVParams.speed =0;
+				badTVParams.rollSpeed =0;
+				rgbParams.angle = 0;
+				rgbParams.amount = 0;
+				staticParams.amount = 0;
+
+			}else{
+				badTVParams.distortion = Math.random()*10+0.1;
+				badTVParams.distortion2 = Math.random()*10+0.1;
+				badTVParams.speed = Math.random()*0.4;
+				badTVParams.rollSpeed = Math.random()*0.2;
+				rgbParams.angle = Math.random()*2;
+				rgbParams.amount = Math.random()*0.03;
+				staticParams.amount = Math.random()*0.2;
+			}
+
+			onParamsChange();
+		}
+
+		function onToggleMute(){
+			video.volume  = badTVParams.mute ? 0 : 1;
+		}
+
+		function onToggleShaders(){
+
+			//Add Shader Passes to Composer
+			//order is important
+			composer = new THREE.EffectComposer( renderer);
+			composer.addPass( renderPass );
+
+			if (filmParams.show){
+				composer.addPass( filmPass );
+			}
+
+			if (badTVParams.show){
+				composer.addPass( badTVPass );
+			}
+
+			if (rgbParams.show){
+				composer.addPass( rgbPass );
+			}
+
+			if (staticParams.show){
+				composer.addPass( staticPass );
+			}
+
+			composer.addPass( copyPass );
+			copyPass.renderToScreen = true;
+		}
+
+		function animate() {
+
+			shaderTime += 0.1;
+			badTVPass.uniforms[ 'time' ].value =  shaderTime;
+			filmPass.uniforms[ 'time' ].value =  shaderTime;
+			staticPass.uniforms[ 'time' ].value =  shaderTime;
+
+			if ( video.readyState === video.HAVE_ENOUGH_DATA ) {
+				if ( videoTexture ) videoTexture.needsUpdate = true;
+			}
+
+			requestAnimationFrame( animate );
+			composer.render( 0.1);
+			//stats.update();
+		}
+
+		function onResize() {
+            filmParams.count = window.innerHeight * 2;
+            plane.scale.x = (window.innerWidth / 100);// * (window.screen.height / window.innerHeight);
+            plane.scale.y = (window.innerHeight / 100);// * (window.screen.height / window.innerHeight);
+			renderer.setSize(window.innerWidth, window.innerHeight);
+			camera.aspect = window.innerWidth / window.innerHeight;
+            camera.position.z = window.innerHeight;
+			camera.updateProjectionMatrix();
+            onParamsChange();
+		}
+
+        var lat = 51.435198;
+        var lng = 0.36597;
+        var user_lat = lat;
+        var user_lng = lng;
+        var displayLogo = true;
+        var dist = 0.003706;
+        var fontWidth = 10;
+        var fontHeight = 18;
+        var cols = 80;
+        var rows = 25;
+        var startedWebgl = false;
+        //var consoleDiv = document.createElement('div');
+        //consoleDiv.className = "console";
+        //document.body.appendChild(consoleDiv);
+        //var consoleImg = document.getElementById('consoleImg');
+        //consoleImg.className = 'consoleimg';
+        //document.body.appendChild(consoleImg);
+
+        function windowResize() {
+            if(window.innerWidth < window.innerHeight) {
+                cols = 60;
+            } else {
+                cols = 80;
+            }
+            rows = Math.round((cols / window.innerWidth) * (window.innerHeight * (fontWidth / fontHeight)));
+            getMap();
+        }
+
+        window.addEventListener("resize", windowResize);
+
+        function getLocation() {
+            if (navigator.geolocation) {
+                console.log('getCurrentPosition');
+                navigator.geolocation.getCurrentPosition(positionCallback, null, { enableHighAccuracy: true });
+                navigator.geolocation.watchPosition(positionUpdate, null, { enableHighAccuracy: true });
+            } else {
+                //getMap();
+                windowResize();
+            }
+        }
+
+        function positionCallback(position) {
+            console.log('positionCallback');
+            lat = position.coords.latitude;
+            lng = position.coords.longitude;
+            //getMap();
+            windowResize();
+        }
+
+        function positionUpdate(position) {
+            user_lat = position.coords.latitude;
+            user_lng = position.coords.longitude;
+            windowResize();
+        }
+
+        function getFonts() {
+            var xhr = new XMLHttpRequest();
+            xhr.onload = function() {
+                var fontList = JSON.parse(this.response);
+                console.log('fonts:', fontList);
+                fontWidth = fontList[0].dimensions.width;
+                fontHeight = fontList[0].dimensions.height;
+                getLocation();
+            }
+            xhr.open("GET", "/api/map/fonts");
+            xhr.send();
+        }
+
+        function getMap() {
+            //var xhr = new XMLHttpRequest();
+            //xhr.onload = function() {
+            //    consoleDiv.innerHTML = this.response;
+            //}
+            //xhr.open("GET", "/api/map/html?lat=" + lat + "&lng=" + lng + "&dist=" + dist);
+            //xhr.send();
+            //var mapImg = new Image();
+
+            var img = new Image();
+
+            img.setAttribute('crossOrigin', 'anonymous');
+
+            img.onload = function () {
+                var canvas = document.createElement("canvas");
+                canvas.width = this.width;
+                canvas.height = this.height;
+
+                var ctx = canvas.getContext("2d");
+                ctx.drawImage(this, 0, 0);
+
+                var dataURL = canvas.toDataURL("image/png");
+
+                video.src = dataURL;
+                if(displayLogo) {
+                    displayLogo = false;
+                    setTimeout(getMap, 3000);
+                }
+            };
+
+            img.src = "/api/map/image?lat=" + lat + "&lng=" + lng + "&dist=" + dist + "&cols=" + cols + "&rows=" + rows + "&user_lat=" + user_lat + "&user_lng=" + user_lng + "&logo=" + displayLogo;
+
+            if(!startedWebgl) {
+                startedWebgl = true;
+                init();
+                animate();
+            }
+        }
+
+        window.addEventListener("click", function (e) {
+            //console.log(e);
+            if (e.clientX < window.innerWidth / 6) {
+                lng -= dist / 2;
+                getMap();
+            }
+            else if (e.clientX > window.innerWidth - (window.innerWidth / 6)) {
+                lng += dist / 2;
+                getMap();
+            }
+            else if (e.clientY < window.innerHeight / 6) {
+                lat += dist / 2;
+                getMap();
+            }
+            else if (e.clientY > window.innerHeight - (window.innerHeight / 6)) {
+                lat -= dist / 2;
+                getMap();
+            }
+        });
+
+        function keyDown(e) {
+            switch(e.keyCode) {
+                case 37:
+                    // Left
+                    lng -= dist / 2;
+                    getMap();
+                    break;
+                case 38:
+                    // Up
+                    lat += dist / 4;
+                    getMap();
+                    break;
+                case 39:
+                    // Right
+                    lng += dist / 2;
+                    getMap();
+                    break;
+                case 40:
+                    // Down
+                    lat -= dist / 4;
+                    getMap();
+                    break;
+                case 189:
+                    // zoom out;
+                    dist *= 2;
+                    getMap();
+                    break;
+                case 187:
+                    // zoom out;
+                    dist /= 2;
+                    getMap();
+                    break;
+            }
+        }
+        window.addEventListener('keydown', keyDown);
+
+        getFonts();
+    </script>
+</body>
+</html>
