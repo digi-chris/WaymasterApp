@@ -336,7 +336,7 @@ function forceRender() {
 
 var font;
 
-function init() {
+function initMapping() {
     // Load the font image and draw when it's ready
     font = new Image();
     console.log('load font');

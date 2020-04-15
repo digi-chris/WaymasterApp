@@ -28,7 +28,7 @@ var app = {
     // 'pause', 'resume', etc.
     onDeviceReady: function() {
         this.receivedEvent('deviceready');
-        init();
+        initMapping();
     },
 
     // Update DOM on a Received Event
