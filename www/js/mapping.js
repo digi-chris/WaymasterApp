@@ -334,10 +334,11 @@ function forceRender() {
 }
 
 
-var font = new Image();
+var font;
 
 function init() {
     // Load the font image and draw when it's ready
+    font = new Image();
     console.log('load font');
     font.onload = draw;
     font.src = "fonts/font_ibm_vga8.png";
