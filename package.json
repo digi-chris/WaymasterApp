@@ -16,6 +16,7 @@
     "cordova-android": "^8.1.0",
     "cordova-browser": "^6.0.0",
     "cordova-ios": "^5.1.1",
+    "cordova-plugin-geolocation": "^4.0.2",
     "web": "0.0.2"
   },
   "devDependencies": {
@@ -23,7 +24,8 @@
   },
   "cordova": {
     "plugins": {
-      "cordova-plugin-whitelist": {}
+      "cordova-plugin-whitelist": {},
+      "cordova-plugin-geolocation": {}
     },
     "platforms": [
       "android",

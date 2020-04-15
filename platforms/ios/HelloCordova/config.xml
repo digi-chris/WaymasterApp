@@ -19,11 +19,14 @@
         <param name="ios-package" value="CDVGestureHandler" />
         <param name="onload" value="true" />
     </feature>
-    <name>HelloCordova</name>
+    <feature name="Geolocation">
+        <param name="ios-package" value="CDVLocation" />
+    </feature>
+    <name>Waymaster</name>
     <description>
         A sample Apache Cordova application that responds to the deviceready event.
     </description>
-    <author email="dev@cordova.apache.org" href="http://cordova.io">
+    <author email="dev@waymaster.com" href="https://waymaster.com">
         Apache Cordova Team
     </author>
     <content src="index.html" />

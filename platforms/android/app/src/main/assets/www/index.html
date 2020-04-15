@@ -28,12 +28,29 @@
             * Disables use of inline scripts in order to mitigate risk of XSS vulnerabilities. To change this:
                 * Enable inline JS: add 'unsafe-inline' to default-src
         -->
-        <meta http-equiv="Content-Security-Policy" content="default-src 'self' data: gap: https://ssl.gstatic.com 'unsafe-eval'; style-src 'self' 'unsafe-inline'; media-src *">
+        <meta http-equiv="Content-Security-Policy" content="default-src 'self' data: gap: https://ssl.gstatic.com 'unsafe-eval'; connect-src 'self' https://waymaster.com; style-src 'self' 'unsafe-inline'; media-src *; img-src 'self' data: content:;">
         <meta name="format-detection" content="telephone=no">
         <meta name="msapplication-tap-highlight" content="no">
-        <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width">
+        <meta name="viewport" content="initial-scale=1, width=device-width, viewport-fit=cover">
         <link rel="stylesheet" type="text/css" href="css/index.css">
-        <title>Hello World</title>
+        <style>
+            body {
+                overflow: hidden;
+                margin: 0px;
+                background-color: black;
+            }
+
+            .main-logo {
+                width: 153px;
+                height: 19px;
+                background-image: url(images/logo.png);
+                background-repeat: no-repeat;
+                background-size: contain;
+                position: absolute;
+                z-index: 1000;
+            }
+        </style>
+        <title>Waymaster</title>
     </head>
     <body>
         <div class="app">
@@ -45,5 +62,23 @@
         </div>
         <script type="text/javascript" src="cordova.js"></script>
         <script type="text/javascript" src="js/index.js"></script>
+        <canvas id="stage" width="640" height="400" style="display: none;"></canvas>
+        <canvas id="buffer" width="640" height="400" style="display: none;"></canvas>
+        <script src='webgl/lib/three.min.js'></script>
+        <script src='webgl/lib/dat.gui.min.js'></script>
+        <script src='webgl/lib/stats.min.js'></script>
+        <script src='webgl/lib/postprocessing/EffectComposer.js'></script>
+        <script src='webgl/lib/postprocessing/RenderPass.js'></script>
+        <script src='webgl/lib/postprocessing/ShaderPass.js'></script>
+        <script src='webgl/lib/postprocessing/MaskPass.js'></script>
+        <script src='webgl/lib/shaders/CopyShader.js'></script>
+        <script src='webgl/lib/shaders/FilmShader.js'></script>
+        <script src='webgl/lib/shaders/RGBShiftShader.js'></script>
+        <script src='webgl/js/BadTVShader.js'></script>
+        <script src='webgl/js/StaticShader.js'></script>
+        <script src='js/webgl.js'></script>
+        <script src='js/mapping.js'></script>
+        <div id="charCache" style="display: none;"></div>
+        <div id="mainLogo" class="main-logo"></div>
     </body>
 </html>
