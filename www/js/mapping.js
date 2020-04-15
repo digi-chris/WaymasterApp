@@ -334,11 +334,14 @@ function forceRender() {
 }
 
 
-// Load the font image and draw when it's ready
-console.log('load font');
 var font = new Image();
-font.onload = draw;
-font.src = "fonts/font_ibm_vga8.png";
+
+function init() {
+    // Load the font image and draw when it's ready
+    console.log('load font');
+    font.onload = draw;
+    font.src = "fonts/font_ibm_vga8.png";
+}
 
 function draw() {
     srcColWidth = (font.width / cW);
