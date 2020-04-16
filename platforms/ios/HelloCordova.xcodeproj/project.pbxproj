@@ -16,6 +16,7 @@
 		6AFF5BF91D6E424B00AB3073 /* CDVLaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 6AFF5BF81D6E424B00AB3073 /* CDVLaunchScreen.storyboard */; };
 		52383E979B8D407D83B1EE8F /* CDVLocation.m in Sources */ = {isa = PBXBuildFile; fileRef = EDC5DFB459AF4E629ECB38D3 /* CDVLocation.m */; };
 		45B25A9BDC454831AD492D6C /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E2DBD5F31BC24B2FB7C6A6EE /* CoreLocation.framework */; };
+		AE20B489552347598A026DE0 /* ScreenSize.m in Sources */ = {isa = PBXBuildFile; fileRef = 30C5F4C4E65F4CF3B8C9CCF8 /* ScreenSize.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -66,6 +67,8 @@
 		EDC5DFB459AF4E629ECB38D3 /* CDVLocation.m */ = {isa = PBXFileReference; name = "CDVLocation.m"; path = "cordova-plugin-geolocation/CDVLocation.m"; sourceTree = "<group>"; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; explicitFileType = undefined; includeInIndex = 0; };
 		00E8BD3BD0FA4CA787331C33 /* CDVLocation.h */ = {isa = PBXFileReference; name = "CDVLocation.h"; path = "cordova-plugin-geolocation/CDVLocation.h"; sourceTree = "<group>"; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; explicitFileType = undefined; includeInIndex = 0; };
 		E2DBD5F31BC24B2FB7C6A6EE /* CoreLocation.framework */ = {isa = PBXFileReference; name = "CoreLocation.framework"; path = "System/Library/Frameworks/CoreLocation.framework"; sourceTree = SDKROOT; fileEncoding = undefined; lastKnownFileType = wrapper.framework; explicitFileType = undefined; includeInIndex = 0; };
+		30C5F4C4E65F4CF3B8C9CCF8 /* ScreenSize.m */ = {isa = PBXFileReference; name = "ScreenSize.m"; path = "cordova-plugin-screensize/ScreenSize.m"; sourceTree = "<group>"; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; explicitFileType = undefined; includeInIndex = 0; };
+		A3233EEC54B94B6CBB6F4371 /* ScreenSize.h */ = {isa = PBXFileReference; name = "ScreenSize.h"; path = "cordova-plugin-screensize/ScreenSize.h"; sourceTree = "<group>"; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; explicitFileType = undefined; includeInIndex = 0; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -174,6 +177,8 @@
 			children = (
 				EDC5DFB459AF4E629ECB38D3 /* CDVLocation.m */,
 				00E8BD3BD0FA4CA787331C33 /* CDVLocation.h */,
+				30C5F4C4E65F4CF3B8C9CCF8 /* ScreenSize.m */,
+				A3233EEC54B94B6CBB6F4371 /* ScreenSize.h */,
 			);
 			name = Plugins;
 			path = "HelloCordova/Plugins";
@@ -299,6 +304,7 @@
 				1D3623260D0F684500981E51 /* AppDelegate.m in Sources */,
 				302D95F114D2391D003F00A1 /* MainViewController.m in Sources */,
 				52383E979B8D407D83B1EE8F /* CDVLocation.m in Sources */,
+				AE20B489552347598A026DE0 /* ScreenSize.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

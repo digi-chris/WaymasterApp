@@ -219,6 +219,9 @@ function animate() {
 }
 
 function onResize() {
+    console.log('onResize');
+    console.log(window.innerWidth + " x " + window.innerHeight);
+    
     var possibleHeight = window.innerWidth * (3 / 4);
     var possibleWidth = window.innerHeight * (4 / 3);
     var finalWidth = window.innerWidth;

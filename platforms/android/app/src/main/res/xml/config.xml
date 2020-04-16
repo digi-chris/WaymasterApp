@@ -7,6 +7,9 @@
     <feature name="Geolocation">
         <param name="android-package" value="org.apache.cordova.geolocation.Geolocation" />
     </feature>
+    <feature name="ScreenSize">
+        <param name="android-package" value="com.pbakondy.ScreenSize" />
+    </feature>
     <name>Waymaster</name>
     <description>
         A sample Apache Cordova application that responds to the deviceready event.
@@ -24,5 +27,5 @@
     <allow-intent href="geo:*" />
     <allow-intent href="market:*" />
     <preference name="loglevel" value="DEBUG" />
-    <preference name="android-minSdkVersion" value="24" />
+    <preference name="phonegap-version" value="cli-9.0.0" />
 </widget>

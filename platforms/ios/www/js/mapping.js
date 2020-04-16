@@ -41,15 +41,17 @@ function isWebGlAvailable() {
 function getLocation() {
     if (navigator.geolocation) {
         console.log('getCurrentPosition');
-        navigator.geolocation.getCurrentPosition(positionCallback);
-        navigator.geolocation.watchPosition(positionUpdate);
+        navigator.geolocation.getCurrentPosition(positionCallback, positionError, {timeout: 10000, enableHighAccuracy: true });
+        navigator.geolocation.watchPosition(positionUpdate, positionError, {timeout: 10000, enableHighAccuracy: true });
     } else {
         //getMap();
         //window.onresize();
     }
 }
 
+var positionStarted = false;
 function positionCallback(position) {
+    positionStarted = true;
     console.log('positionCallback');
     lat = position.coords.latitude;
     lng = position.coords.longitude;
@@ -74,9 +76,18 @@ function positionCallback(position) {
 }
 
 function positionUpdate(position) {
-    user_lat = position.coords.latitude;
-    user_lng = position.coords.longitude;
+    if (!positionStarted) {
+        positionCallback(position);
+    } else {
+        console.log('positionUpdate');
+        user_lat = position.coords.latitude;
+        user_lng = position.coords.longitude;
+    }
     //window.onresize();
+}
+
+function positionError(e) {
+    console.error("GPS Position error:", e);
 }
 
 function isCanvasSupported(){
@@ -243,6 +254,7 @@ var renderTimeout = null;
 var canvasChars = [];
 
 function createChars() {
+    var charCache = document.getElementById("charCache");
     for (var i = 0; i < 256; i++) {
         var charCode = i;
         for (var foregroundColor = 0; foregroundColor < 16; foregroundColor++) {
@@ -255,7 +267,7 @@ function createChars() {
             c.width = cW;
             c.height = cH;
             c.style.display = "none";
-            document.body.appendChild(c);
+            charCache.appendChild(c);
 
             var ctx = c.getContext("2d");
             ctx.save();
@@ -334,18 +346,21 @@ function forceRender() {
 }
 
 
-// Load the font image and draw when it's ready
-console.log('load font');
-var font = new Image();
-font.onload = draw;
-font.src = "fonts/font_ibm_vga8.png";
+var font;
+
+function initMapping() {
+    // Load the font image and draw when it's ready
+    font = new Image();
+    console.log('load font');
+    font.onload = draw;
+    font.src = "fonts/font_ibm_vga8.png";
+}
 
 function draw() {
+    console.log('initial draw');
     srcColWidth = (font.width / cW);
     console.log(srcColWidth);
-
     createChars();
-
     getLocation();
 }
 
