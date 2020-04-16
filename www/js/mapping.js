@@ -267,6 +267,8 @@ function createChars() {
             c.width = cW;
             c.height = cH;
             c.style.display = "none";
+            c.style.width = cW + "px";
+            c.style.height = cH + "px";
             charCache.appendChild(c);
 
             var ctx = c.getContext("2d");
