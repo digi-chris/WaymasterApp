@@ -220,13 +220,13 @@ function animate() {
 
 function onResize() {
     console.log('onResize');
-    console.log(window.innerWidth + " x " + window.innerHeight);
-    
-    var possibleHeight = window.innerWidth * (3 / 4);
-    var possibleWidth = window.innerHeight * (4 / 3);
-    var finalWidth = window.innerWidth;
-    var finalHeight = window.innerHeight;
-    if(possibleWidth <= window.innerWidth) {
+    console.log(document.body.clientWidth + " x " + document.body.clientHeight);
+
+    var possibleHeight = document.body.clientWidth * (3 / 4);
+    var possibleWidth = document.body.clientHeight * (4 / 3);
+    var finalWidth = document.body.clientWidth;
+    var finalHeight = document.body.clientHeight;
+    if(possibleWidth <= document.body.clientWidth) {
         finalWidth = possibleWidth;
     } else {
         finalHeight = possibleHeight;
@@ -241,19 +241,19 @@ function onResize() {
         camera.position.z = finalHeight;
         camera.updateProjectionMatrix();
         renderer.domElement.style.position = "absolute";
-        renderer.domElement.style.left = ((window.innerWidth - finalWidth) / 2) + 'px';
-        renderer.domElement.style.top = ((window.innerHeight - finalHeight) / 2) + 'px';
+        renderer.domElement.style.left = ((document.body.clientWidth - finalWidth) / 2) + 'px';
+        renderer.domElement.style.top = ((document.body.clientHeight - finalHeight) / 2) + 'px';
         onParamsChange();
     } else {
         document.getElementById('stage').style.width = finalWidth + 'px';
         document.getElementById('stage').style.height = finalHeight + 'px';
-        document.getElementById('stage').style.marginLeft = ((window.innerWidth - finalWidth) / 2) + 'px';
-        document.getElementById('stage').style.marginTop = ((window.innerHeight - finalHeight) / 2) + 'px';
+        document.getElementById('stage').style.marginLeft = ((document.body.clientWidth - finalWidth) / 2) + 'px';
+        document.getElementById('stage').style.marginTop = ((document.body.clientHeight - finalHeight) / 2) + 'px';
     }
 
     var mainLogo = document.getElementById("mainLogo");
-    mainLogo.style.top = ((((window.innerHeight - finalHeight) / 2) + finalHeight) - 20) + "px";
-    mainLogo.style.left = ((((window.innerWidth - finalWidth) / 2) + finalWidth) - 158) + "px";
+    mainLogo.style.top = ((((document.body.clientHeight - finalHeight) / 2) + finalHeight) - 20) + "px";
+    mainLogo.style.left = ((((document.body.clientWidth - finalWidth) / 2) + finalWidth) - 158) + "px";
 
 }
 
