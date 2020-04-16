@@ -243,6 +243,7 @@ var renderTimeout = null;
 var canvasChars = [];
 
 function createChars() {
+    var charCache = document.getElementById("charCache");
     for (var i = 0; i < 256; i++) {
         var charCode = i;
         for (var foregroundColor = 0; foregroundColor < 16; foregroundColor++) {
@@ -255,7 +256,7 @@ function createChars() {
             c.width = cW;
             c.height = cH;
             c.style.display = "none";
-            document.body.appendChild(c);
+            charCache.appendChild(c);
 
             var ctx = c.getContext("2d");
             ctx.save();
