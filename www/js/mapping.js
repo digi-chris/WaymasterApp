@@ -41,8 +41,8 @@ function isWebGlAvailable() {
 function getLocation() {
     if (navigator.geolocation) {
         console.log('getCurrentPosition');
-        navigator.geolocation.getCurrentPosition(positionCallback);
-        navigator.geolocation.watchPosition(positionUpdate);
+        navigator.geolocation.getCurrentPosition(positionCallback, positionError, {timeout: 10000, enableHighAccuracy: true });
+        navigator.geolocation.watchPosition(positionUpdate, positionError, {timeout: 10000, enableHighAccuracy: true });
     } else {
         //getMap();
         //window.onresize();
@@ -84,6 +84,10 @@ function positionUpdate(position) {
         user_lng = position.coords.longitude;
     }
     //window.onresize();
+}
+
+function positionError(e) {
+    console.error("GPS Position error:", e);
 }
 
 function isCanvasSupported(){
