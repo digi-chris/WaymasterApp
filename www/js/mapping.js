@@ -49,7 +49,9 @@ function getLocation() {
     }
 }
 
+var positionStarted = false;
 function positionCallback(position) {
+    positionStarted = true;
     console.log('positionCallback');
     lat = position.coords.latitude;
     lng = position.coords.longitude;
@@ -74,8 +76,13 @@ function positionCallback(position) {
 }
 
 function positionUpdate(position) {
-    user_lat = position.coords.latitude;
-    user_lng = position.coords.longitude;
+    if (!positionStarted) {
+        positionCallback(position);
+    } else {
+        console.log('positionUpdate');
+        user_lat = position.coords.latitude;
+        user_lng = position.coords.longitude;
+    }
     //window.onresize();
 }
 
@@ -346,11 +353,10 @@ function initMapping() {
 }
 
 function draw() {
+    console.log('initial draw');
     srcColWidth = (font.width / cW);
     console.log(srcColWidth);
-
     createChars();
-
     getLocation();
 }
 
