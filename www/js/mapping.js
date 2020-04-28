@@ -1,4 +1,4 @@
-var displayLogo = true;
+﻿var displayLogo = true;
 var dist = 0.003706;
 var zoom = 2;
 var rows = 25;
@@ -15,8 +15,6 @@ var videoHasLoaded = false;
 
 var cW = 8;
 var cH = 16;
-
-var rootURL = "https://waymaster.com"
 
 video.onload = function() {
     videoHasLoaded = true;
@@ -41,17 +39,15 @@ function isWebGlAvailable() {
 function getLocation() {
     if (navigator.geolocation) {
         console.log('getCurrentPosition');
-        navigator.geolocation.getCurrentPosition(positionCallback, positionError, {timeout: 10000, enableHighAccuracy: true });
-        navigator.geolocation.watchPosition(positionUpdate, positionError, {timeout: 10000, enableHighAccuracy: true });
+        navigator.geolocation.getCurrentPosition(positionCallback);
+        navigator.geolocation.watchPosition(positionUpdate);
     } else {
         //getMap();
         //window.onresize();
     }
 }
 
-var positionStarted = false;
 function positionCallback(position) {
-    positionStarted = true;
     console.log('positionCallback');
     lat = position.coords.latitude;
     lng = position.coords.longitude;
@@ -76,18 +72,9 @@ function positionCallback(position) {
 }
 
 function positionUpdate(position) {
-    if (!positionStarted) {
-        positionCallback(position);
-    } else {
-        console.log('positionUpdate');
-        user_lat = position.coords.latitude;
-        user_lng = position.coords.longitude;
-    }
+    user_lat = position.coords.latitude;
+    user_lng = position.coords.longitude;
     //window.onresize();
-}
-
-function positionError(e) {
-    console.error("GPS Position error:", e);
 }
 
 function isCanvasSupported(){
@@ -97,13 +84,20 @@ function isCanvasSupported(){
 
 var consoleBytes;
 var consoleBuffer = [];
+var overlayBuffer = [];
 var arrayPos = 0;
 
 for(var y = 0; y < rows; y++) {
     consoleBuffer[y] = [];
+    overlayBuffer[y] = [];
     for(var x = 0; x < cols; x++) {
         consoleBuffer[y][x] = {
             char: 32,
+            foreground: 0,
+            background: 0
+        };
+        overlayBuffer[y][x] = {
+            char: null,
             foreground: 0,
             background: 0
         };
@@ -187,7 +181,7 @@ function getMap() {
         //}
     };
 
-    xhr.open("GET", rootURL + "/api/map/data?lat=" + lat + "&lng=" + lng + "&zoom=" + zoom + "&cols=" + cols + "&rows=" + rows + "&user_lat=" + user_lat + "&user_lng=" + user_lng + "&logo=" + displayLogo);
+    xhr.open("GET", "/api/map/data?lat=" + lat + "&lng=" + lng + "&zoom=" + zoom + "&cols=" + cols + "&rows=" + rows + "&user_lat=" + user_lat + "&user_lng=" + user_lng + "&logo=" + displayLogo);
     xhr.send();
     //displayLogo = false;
     if(!startedWebgl) {
@@ -214,7 +208,7 @@ function reverseSearch(lat, lon) {
                 reject(this);
             }
         }
-        xhr.open("GET", rootURL + "/api/geocoding/reverse?lat=" + lat + "&lon=" + lon);
+        xhr.open("GET", "/api/geocoding/reverse?lat=" + lat + "&lon=" + lon);
         xhr.send();
     });
 }
@@ -240,10 +234,83 @@ var consoleChars = [
     "#FFFFFF"
 ];
 
-function drawString(text, col, row, backgroundColor, foregroundColor) {
+function drawString(text, col, row, backgroundColor, foregroundColor, drawOnOverlay, webControl) {
     for(var i = 0; i < text.length; i++) {
         var cCode = text.charCodeAt(i);
-        drawCharacter(cCode, col + i, row, backgroundColor, foregroundColor);
+        drawCharacter(cCode, col + i, row, backgroundColor, foregroundColor, null, drawOnOverlay, webControl);
+    }
+}
+
+var borders = {
+    "singleLine": {
+        "topLeft": 218,
+        "topRight": 191,
+        "bottomRight": 217,
+        "bottomLeft": 192,
+        "horizontal": 196,
+        "vertical": 179
+    },
+    "doubleLine": {
+        "topLeft": 201,
+        "topRight": 187,
+        "bottomRight": 188,
+        "bottomLeft": 200,
+        "horizontal": 205,
+        "vertical": 186
+    },
+    "noBorder": {
+        "topLeft": 32,
+        "topRight": 32,
+        "bottomRight": 32,
+        "bottomLeft": 32,
+        "horizontal": 32,
+        "vertical": 32
+    },
+    "bevel": {
+        "topLeft": { charCode: 258, invert: true, background: 15 },
+        "topRight": 258,
+        "bottomRight": { charCode: 257, invert: true },
+        "bottomLeft": 258,
+        "top": { charCode: 223, foreground: 15 },
+        "bottom": 220,
+        "left": { charCode: 221, foreground: 15 },
+        "right": 222
+    }
+};
+
+function drawRectangle(fromCol, fromRow, toCol, toRow, backgroundColor, foregroundColor, lineStyle, fill, onOverlay, webControl) {
+    drawCharacter(borders[lineStyle].topLeft, fromCol, fromRow, backgroundColor, foregroundColor, false, onOverlay, webControl);
+    drawCharacter(borders[lineStyle].topRight, toCol, fromRow, backgroundColor, foregroundColor, false, onOverlay, webControl);
+    drawCharacter(borders[lineStyle].bottomRight, toCol, toRow, backgroundColor, foregroundColor, false, onOverlay, webControl);
+    drawCharacter(borders[lineStyle].bottomLeft, fromCol, toRow, backgroundColor, foregroundColor, false, onOverlay, webControl);
+
+    var i;
+    for (i = fromCol + 1; i < toCol; i++) {
+        if (borders[lineStyle].horizontal) {
+            drawCharacter(borders[lineStyle].horizontal, i, fromRow, backgroundColor, foregroundColor, false, onOverlay, webControl);
+            drawCharacter(borders[lineStyle].horizontal, i, toRow, backgroundColor, foregroundColor, false, onOverlay, webControl);
+        } else {
+            drawCharacter(borders[lineStyle].top, i, fromRow, backgroundColor, foregroundColor, false, onOverlay, webControl);
+            drawCharacter(borders[lineStyle].bottom, i, toRow, backgroundColor, foregroundColor, false, onOverlay, webControl);
+        }
+    }
+
+    for (i = fromRow + 1; i < toRow; i++) {
+        if (borders[lineStyle].vertical) {
+            drawCharacter(borders[lineStyle].vertical, fromCol, i, backgroundColor, foregroundColor, false, onOverlay, webControl);
+            drawCharacter(borders[lineStyle].vertical, toCol, i, backgroundColor, foregroundColor, false, onOverlay, webControl);
+        } else {
+            drawCharacter(borders[lineStyle].left, fromCol, i, backgroundColor, foregroundColor, false, onOverlay, webControl);
+            drawCharacter(borders[lineStyle].right, toCol, i, backgroundColor, foregroundColor, false, onOverlay, webControl);
+        }
+    }
+
+    if (fill) {
+        for (var y = fromRow + 1; y < toRow; y++) {
+            for (var x = fromCol + 1; x < toCol; x++) {
+                drawCharacter(32, x, y, backgroundColor, foregroundColor, false, onOverlay, webControl);
+            }
+        }
     }
 }
 
@@ -254,50 +321,82 @@ var renderTimeout = null;
 var canvasChars = [];
 
 function createChars() {
-    var charCache = document.getElementById("charCache");
-    for (var i = 0; i < 256; i++) {
-        var charCode = i;
-        for (var foregroundColor = 0; foregroundColor < 16; foregroundColor++) {
-            var srcRow = Math.floor(charCode / srcColWidth);
-            var srcCol = charCode - (srcRow * srcColWidth);
-            var srcX = srcCol * cW;
-            var srcY = srcRow * cH;
+    var fontImage;
+    for (var f = 0; f < 2; f++) {
+        if (f === 0) {
+            fontImage = font;
+        } else {
+            fontImage = font2;
+        }
 
-            var c = document.createElement("canvas");
-            c.width = cW;
-            c.height = cH;
-            c.style.display = "none";
-            c.style.width = cW + "px";
-            c.style.height = cH + "px";
-            charCache.appendChild(c);
+        for (var i = 0; i < 256; i++) {
+            var charCode = i;
+            for (var foregroundColor = 0; foregroundColor < 16; foregroundColor++) {
+                var srcRow = Math.floor(charCode / srcColWidth);
+                var srcCol = charCode - (srcRow * srcColWidth);
+                var srcX = srcCol * cW;
+                var srcY = srcRow * cH;
 
-            var ctx = c.getContext("2d");
-            ctx.save();
-            ctx.clearRect(0, 0, cW, cH);
-            ctx.drawImage(font, srcX, srcY, cW, cH, 0, 0, cW, cH);
-            ctx.fillStyle = consoleChars[foregroundColor];
-            ctx.globalCompositeOperation = 'source-in';
-            ctx.fillRect(0, 0, cW, cH);
-            ctx.restore();
+                var c = document.createElement("canvas");
+                c.width = cW;
+                c.height = cH;
+                c.style.display = "none";
+                document.body.appendChild(c);
 
-            if (foregroundColor === 0) {
-                canvasChars[i] = [];
+                var ctx = c.getContext("2d");
+                ctx.save();
+                ctx.clearRect(0, 0, cW, cH);
+                ctx.drawImage(fontImage, srcX, srcY, cW, cH, 0, 0, cW, cH);
+                ctx.fillStyle = consoleChars[foregroundColor];
+                ctx.globalCompositeOperation = 'source-in';
+                ctx.fillRect(0, 0, cW, cH);
+                ctx.restore();
+
+                if (foregroundColor === 0) {
+                    canvasChars[i + (256 * f)] = [];
+                }
+                canvasChars[i + (256 * f)][foregroundColor] = c;
             }
-            canvasChars[i][foregroundColor] = c;
         }
     }
 }
 
-function drawCharacter(charCode, col, row, backgroundColor, foregroundColor, dontRender) {
+function drawCharacter(charCode, col, row, backgroundColor, foregroundColor, dontRender, drawOnOverlay, webControl) {
+    var charObj = null;
+    if (charCode.charCode) {
+        charObj = charCode;
+        charCode = charObj.charCode;
+
+        if (charObj.invert) {
+            var fColor = backgroundColor;
+            backgroundColor = foregroundColor;
+            foregroundColor = fColor;
+        }
+
+        if (charObj.background) {
+            backgroundColor = charObj.background;
+        }
+
+        if (charObj.foreground) {
+            foregroundColor = charObj.foreground;
+        }
+    }
+
     if (col < cols && row < rows) {
+        var drawBuffer;
+
+        if (drawOnOverlay) {
+            drawBuffer = overlayBuffer;
+        } else {
+            drawBuffer = consoleBuffer;
+        }
+
         // only bother drawing if char has changed
-        if (consoleBuffer[row][col].char !== charCode || consoleBuffer[row][col].foreground !== foregroundColor || consoleBuffer[row][col].background !== backgroundColor) {
+        if (drawBuffer[row][col].char !== charCode || drawBuffer[row][col].foreground !== foregroundColor || drawBuffer[row][col].background !== backgroundColor) {
             var srcRow = Math.floor(charCode / srcColWidth);
             var srcCol = charCode - (srcRow * srcColWidth);
             var srcX = srcCol * cW;
             var srcY = srcRow * cH;
-            ctx.fillStyle = consoleChars[backgroundColor];
-            ctx.fillRect(col * cW, row * cH, cW, cH);
 
             //bufferCtx.save();
             //bufferCtx.clearRect(0, 0, cW, cH);
@@ -308,11 +407,21 @@ function drawCharacter(charCode, col, row, backgroundColor, foregroundColor, don
             //bufferCtx.restore();
 
             //ctx.drawImage(buffer, 0, 0, cW, cH, col * cW, row * cH, cW, cH);
-            ctx.drawImage(canvasChars[charCode][foregroundColor], 0, 0, cW, cH, col * cW, row * cH, cW, cH);
+            drawBuffer[row][col].char = charCode;
+            drawBuffer[row][col].foreground = foregroundColor;
+            drawBuffer[row][col].background = backgroundColor;
+            drawBuffer[row][col].webControl = webControl;
 
-            consoleBuffer[row][col].char = charCode;
-            consoleBuffer[row][col].foreground = foregroundColor;
-            consoleBuffer[row][col].background = backgroundColor;
+            if (overlayBuffer[row][col].char !== null) {
+                ctx.fillStyle = consoleChars[overlayBuffer[row][col].background];
+                ctx.fillRect(col * cW, row * cH, cW, cH);
+                ctx.drawImage(canvasChars[overlayBuffer[row][col].char][overlayBuffer[row][col].foreground], 0, 0, cW, cH, col * cW, row * cH, cW, cH);
+            } else {
+                ctx.fillStyle = consoleChars[backgroundColor];
+                ctx.fillRect(col * cW, row * cH, cW, cH);
+                ctx.drawImage(canvasChars[charCode][foregroundColor], 0, 0, cW, cH, col * cW, row * cH, cW, cH);
+            }
+
             if (!dontRender) {
                 //lastRender = new Date();
                 //if (!isRendering) {
@@ -348,22 +457,30 @@ function forceRender() {
 }
 
 
-var font;
+// Load the font image and draw when it's ready
+console.log('load font');
+var font = new Image();
+font.onload = draw;
+font.src = "fonts/font_ibm_vga8.png";
 
-function initMapping() {
-    // Load the font image and draw when it's ready
-    font = new Image();
-    console.log('load font');
-    font.onload = draw;
-    font.src = "fonts/font_ibm_vga8.png";
-}
+var font2 = new Image();
+font2.onload = draw;
+font2.src = "fonts/font_ibm_vga_extended.png";
+
+var fontCount = 0;
 
 function draw() {
-    console.log('initial draw');
+    fontCount++;
     srcColWidth = (font.width / cW);
-    console.log(srcColWidth);
-    createChars();
-    getLocation();
+    //console.log(srcColWidth);
+
+    if (fontCount === 2) {
+        createChars();
+        getLocation();
+    }
+
+    //drawRectangle(1, 1, 10, 5, 4, 15, "singleLine", true, true);
+    //drawRectangle(30, 2, 36, 7, 4, 15, "doubleLine", false, true);
 }
 
 function keyDown(e) {
@@ -410,3 +527,108 @@ function keyDown(e) {
     }
 }
 window.addEventListener('keydown', keyDown);
+
+function WebControls_Loaded() {
+    console.log('WebControls_Loaded');
+    var upBtn = new TextButton(69, 18, String.fromCharCode(24));
+    var downBtn = new TextButton(69, 21, String.fromCharCode(25));
+    var rightBtn = new TextButton(74, 21, String.fromCharCode(26));
+    var leftBtn = new TextButton(64, 21, String.fromCharCode(27));
+
+    var zoomInBtn = new TextButton(74, 1, "+");
+    var zoomOutBtn = new TextButton(74, 4, "-");
+
+    zoomInBtn.addEventListener("click", () => {
+        dist /= 2;
+        zoom--;
+        getMap();
+    });
+
+    zoomOutBtn.addEventListener("click", () => {
+        dist *= 2;
+        zoom++;
+        getMap();
+    });
+
+    upBtn.addEventListener("click", () => {
+        lat += dist / 4;
+        getMap();
+    });
+
+    downBtn.addEventListener("click", () => {
+        lat -= dist / 4;
+        getMap();
+    });
+
+    leftBtn.addEventListener("click", () => {
+        lng -= dist / 2;
+        getMap();
+    });
+
+    rightBtn.addEventListener("click", () => {
+        lng += dist / 2;
+        getMap();
+    });
+}
+
+var webControlUnderMouse = null;
+var webControlFocus = null;
+
+["mousemove", "mousedown", "mouseup", "click"].forEach((item) => {
+    document.body.addEventListener(item, (e) => {
+        var col = Math.floor(((e.clientX - offsetX) / screenWidth) * cols);
+        var row = Math.floor(((e.clientY - offsetY) / screenHeight) * rows);
+
+        e.consoleX = col;
+        e.consoleY = row;
+
+        if (overlayBuffer[row][col].webControl) {
+            if (webControlUnderMouse !== overlayBuffer[row][col].webControl) {
+                if (webControlUnderMouse !== null) {
+                    if (webControlUnderMouse.mouseleave) {
+                        webControlUnderMouse.mouseleave();
+                    }
+                }
+                webControlUnderMouse = overlayBuffer[row][col].webControl;
+                if (webControlUnderMouse.mouseenter) {
+                    webControlUnderMouse.mouseenter();
+                }
+            }
+
+            if (overlayBuffer[row][col].webControl[item]) {
+                overlayBuffer[row][col].webControl[item](e);
+            }
+        } else {
+            if (webControlUnderMouse !== null) {
+                if (webControlUnderMouse.mouseleave) {
+                    webControlUnderMouse.mouseleave();
+                }
+                webControlUnderMouse = null;
+            }
+        }
+
+        if (item === "mousedown") {
+            if (webControlUnderMouse !== webControlFocus) {
+                if (webControlFocus !== null) {
+                    if (webControlFocus.lostFocus) {
+                        webControlFocus.lostFocus();
+                    }
+                }
+
+                webControlFocus = webControlUnderMouse;
+                if (webControlFocus !== null) {
+                    if (webControlFocus.gotFocus) {
+                        webControlFocus.gotFocus();
+                    }
+                }
+            }
+        }
+    });
+});
+
+document.body.addEventListener("click", (e) => {
+    if (displayLogo) {
+        displayLogo = false;
+        getMap();
+    }
+});

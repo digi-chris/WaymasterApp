@@ -1,4 +1,4 @@
-//Bad TV Shader Demo
+﻿//Bad TV Shader Demo
 //Using Three.js r.75
 //by Felix Turner / www.airtight.cc / @felixturner
 
@@ -18,7 +18,7 @@ var plane;
 
 function init() {
 
-    camera = new THREE.PerspectiveCamera(55, 1080/ 720, 20, 3000);
+    camera = new THREE.PerspectiveCamera(55, 1080 / 720, 20, 3000);
     camera.position.z = 1000;
     scene = new THREE.Scene();
 
@@ -81,7 +81,7 @@ function init() {
 
     filmParams = {
         show: true,
-        count: window.innerHeight * 2,
+        count: 800,
         sIntensity: 0.8,
         nIntensity: 0.7
     };
@@ -218,43 +218,49 @@ function animate() {
     //stats.update();
 }
 
-function onResize() {
-    console.log('onResize');
-    console.log(document.body.clientWidth + " x " + document.body.clientHeight);
+var offsetX = 0;
+var offsetY = 0;
+var screenWidth = 640;
+var screenHeight = 480;
 
-    var possibleHeight = document.body.clientWidth * (3 / 4);
-    var possibleWidth = document.body.clientHeight * (4 / 3);
-    var finalWidth = document.body.clientWidth;
-    var finalHeight = document.body.clientHeight;
-    if(possibleWidth <= document.body.clientWidth) {
+function onResize() {
+    var possibleHeight = window.innerWidth * (3 / 4);
+    var possibleWidth = window.innerHeight * (4 / 3);
+    var finalWidth = window.innerWidth;
+    var finalHeight = window.innerHeight;
+    if(possibleWidth <= window.innerWidth) {
         finalWidth = possibleWidth;
     } else {
         finalHeight = possibleHeight;
     }
 
+    offsetX = (window.innerWidth - finalWidth) / 2;
+    offsetY = (window.innerHeight - finalHeight) / 2;
+    screenWidth = finalWidth;
+    screenHeight = finalHeight;
+
     if (usingWebGl) {       
-        filmParams.count = finalHeight * 2;
+        //filmParams.count = finalHeight * 2;
         plane.scale.x = (finalWidth / 100);// * (window.screen.height / window.innerHeight);
         plane.scale.y = (finalHeight / 100);// * (window.screen.height / window.innerHeight);
         renderer.setSize(finalWidth, finalHeight);
         camera.aspect = finalWidth / finalHeight;
-        camera.position.z = finalHeight;
+        camera.position.z = finalHeight - (14 * (finalHeight / 400));
         camera.updateProjectionMatrix();
         renderer.domElement.style.position = "absolute";
-        renderer.domElement.style.left = ((document.body.clientWidth - finalWidth) / 2) + 'px';
-        renderer.domElement.style.top = ((document.body.clientHeight - finalHeight) / 2) + 'px';
+        renderer.domElement.style.left = offsetX + 'px';
+        renderer.domElement.style.top = offsetY + 'px';
         onParamsChange();
     } else {
         document.getElementById('stage').style.width = finalWidth + 'px';
         document.getElementById('stage').style.height = finalHeight + 'px';
-        document.getElementById('stage').style.marginLeft = ((document.body.clientWidth - finalWidth) / 2) + 'px';
-        document.getElementById('stage').style.marginTop = ((document.body.clientHeight - finalHeight) / 2) + 'px';
+        document.getElementById('stage').style.marginLeft = ((window.innerWidth - finalWidth) / 2) + 'px';
+        document.getElementById('stage').style.marginTop = ((window.innerHeight - finalHeight) / 2) + 'px';
     }
 
     var mainLogo = document.getElementById("mainLogo");
-    mainLogo.style.top = ((((document.body.clientHeight - finalHeight) / 2) + finalHeight) - 20) + "px";
-    mainLogo.style.left = ((((document.body.clientWidth - finalWidth) / 2) + finalWidth) - 158) + "px";
-
+    mainLogo.style.top = ((((window.innerHeight - finalHeight) / 2) + finalHeight) - 20) + "px";
+    mainLogo.style.left = ((((window.innerWidth - finalWidth) / 2) + finalWidth) - 158) + "px";
 }
 
 var lat = 51.435198;
@@ -287,7 +293,7 @@ var startedWebgl = false;
 
 //window.addEventListener("resize", windowResize);
 
-document.querySelector('body').addEventListener("click", function (e) {
+/*document.querySelector('body').addEventListener("click", function (e) {
     if (displayLogo) {
         displayLogo = false;
         getMap();
@@ -310,4 +316,4 @@ document.querySelector('body').addEventListener("click", function (e) {
             getMap();
         }
     }
-});
+});*/
