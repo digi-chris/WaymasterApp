@@ -16,6 +16,8 @@ var videoHasLoaded = false;
 var cW = 8;
 var cH = 16;
 
+var rootURL = "https://waymaster.com";
+
 video.onload = function() {
     videoHasLoaded = true;
 };
@@ -181,7 +183,7 @@ function getMap() {
         //}
     };
 
-    xhr.open("GET", "/api/map/data?lat=" + lat + "&lng=" + lng + "&zoom=" + zoom + "&cols=" + cols + "&rows=" + rows + "&user_lat=" + user_lat + "&user_lng=" + user_lng + "&logo=" + displayLogo);
+    xhr.open("GET", rootURL + "/api/map/data?lat=" + lat + "&lng=" + lng + "&zoom=" + zoom + "&cols=" + cols + "&rows=" + rows + "&user_lat=" + user_lat + "&user_lng=" + user_lng + "&logo=" + displayLogo);
     xhr.send();
     //displayLogo = false;
     if(!startedWebgl) {
@@ -208,7 +210,7 @@ function reverseSearch(lat, lon) {
                 reject(this);
             }
         }
-        xhr.open("GET", "/api/geocoding/reverse?lat=" + lat + "&lon=" + lon);
+        xhr.open("GET", rootURL + "/api/geocoding/reverse?lat=" + lat + "&lon=" + lon);
         xhr.send();
     });
 }

@@ -29,6 +29,14 @@ var app = {
     onDeviceReady: function() {
         this.receivedEvent('deviceready');
         initMapping();
+
+        window.plugins.screensize.get(
+            (s) => {
+                console.log('Screensize:', s);
+            },
+            (e) => {
+                console.log('Screensize:', e);
+            });
     },
 
     // Update DOM on a Received Event

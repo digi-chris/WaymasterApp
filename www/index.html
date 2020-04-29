@@ -28,7 +28,7 @@
             * Disables use of inline scripts in order to mitigate risk of XSS vulnerabilities. To change this:
                 * Enable inline JS: add 'unsafe-inline' to default-src
         -->
-        <meta http-equiv="Content-Security-Policy" content="default-src 'self' data: gap: https://ssl.gstatic.com 'unsafe-eval'; connect-src 'self' https://waymaster.com; style-src 'self' 'unsafe-inline'; media-src *; img-src 'self' data: content:;">
+        <meta http-equiv="Content-Security-Policy" content="default-src 'self' data: gap: https://ssl.gstatic.com 'unsafe-eval' 'unsafe-inline'; connect-src 'self' https://waymaster.com; style-src 'self' 'unsafe-inline'; media-src *; img-src 'self' data: content:;">
         <meta name="format-detection" content="telephone=no">
         <meta name="msapplication-tap-highlight" content="no">
         <meta name="viewport" content="initial-scale=1, width=640">
@@ -79,7 +79,7 @@
         <script src='webgl/js/StaticShader.js'></script>
         <script src='js/webgl.js'></script>
         <script src='js/mapping.js'></script>
-        <script src='js/control.js' defer></script>
+        <script src='js/controls.js' defer></script>
         <div id="charCache" style="display: none;"></div>
         <div id="mainLogo" class="main-logo"></div>
     </body>
