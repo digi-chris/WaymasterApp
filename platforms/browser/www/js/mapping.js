@@ -458,18 +458,21 @@ function forceRender() {
     };
 }
 
-
-// Load the font image and draw when it's ready
-console.log('load font');
-var font = new Image();
-font.onload = draw;
-font.src = "fonts/font_ibm_vga8.png";
-
-var font2 = new Image();
-font2.onload = draw;
-font2.src = "fonts/font_ibm_vga_extended.png";
-
+var font;
+var font2;
 var fontCount = 0;
+
+function initMapping() {
+    // Load the font image and draw when it's ready
+    console.log('load font');
+    font = new Image();
+    font.onload = draw;
+    font.src = "fonts/font_ibm_vga8.png";
+
+    font2 = new Image();
+    font2.onload = draw;
+    font2.src = "fonts/font_ibm_vga_extended.png";
+}
 
 function draw() {
     fontCount++;
@@ -483,6 +486,7 @@ function draw() {
 
     //drawRectangle(1, 1, 10, 5, 4, 15, "singleLine", true, true);
     //drawRectangle(30, 2, 36, 7, 4, 15, "doubleLine", false, true);
+    initWebControls();
 }
 
 function keyDown(e) {
@@ -530,8 +534,8 @@ function keyDown(e) {
 }
 window.addEventListener('keydown', keyDown);
 
-function WebControls_Loaded() {
-    console.log('WebControls_Loaded');
+function initWebControls() {
+    //console.log('WebControls_Loaded');
     var upBtn = new TextButton(69, 18, String.fromCharCode(24));
     var downBtn = new TextButton(69, 21, String.fromCharCode(25));
     var rightBtn = new TextButton(74, 21, String.fromCharCode(26));
