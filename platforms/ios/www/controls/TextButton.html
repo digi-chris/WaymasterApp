@@ -1,0 +1,38 @@
+﻿<div class="app-control">
+    <div data-control="TextButton">
+    </div>
+    <script>
+        class TextButton extends Control {
+            constructor(x, y, text) {
+                super();
+
+                drawRectangle(x, y, x + text.length + 3, y + 2, 7, 8, "bevel", true, true, this);
+                drawString(text, x + 2, y + 1, 7, 0, true, this);
+
+                this._x = x;
+                this._y = y;
+                this._text = text;
+            }
+
+            click() {
+                this.triggerEvent("click");
+            }
+
+            mousedown() {
+                this.triggerEvent("mousedown");
+            }
+
+            mouseup() {
+                this.triggerEvent("mouseup");
+            }
+
+            gotFocus() {
+                drawString(" " + this._text + " ", this._x + 1, this._y + 1, 9, 14, true, this);
+            }
+
+            lostFocus() {
+                drawString(" " + this._text + " ", this._x + 1, this._y + 1, 7, 0, true, this);
+            }
+        }
+    </script>
+</div>

@@ -263,17 +263,6 @@ function onResize() {
     mainLogo.style.left = ((((window.innerWidth - finalWidth) / 2) + finalWidth) - 158) + "px";
 }
 
-var lat = 51.435198;
-var lng = 0.36597;
-var user_lat = lat;
-var user_lng = lng;
-var displayLogo = true;
-//var dist = 0.003706;
-var fontWidth = 10;
-var fontHeight = 18;
-//var cols = 80;
-//var rows = 25;
-var startedWebgl = false;
 //var consoleDiv = document.createElement('div');
 //consoleDiv.className = "console";
 //document.body.appendChild(consoleDiv);
