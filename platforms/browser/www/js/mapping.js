@@ -39,7 +39,7 @@ function waymasterUI() {
 
     function isWebGlAvailable() {
         //usingWebGl = false;
-        //return false;
+        return false;
         var canvas = document.createElement("canvas");
         var gl = canvas.getContext("webgl")
         || canvas.getContext("experimental-webgl");
