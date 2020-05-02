@@ -3,7 +3,8 @@
 //by Felix Turner / www.airtight.cc / @felixturner
 
 var camera, scene, renderer;
-var video, videoTexture, videoMaterial;
+var video = new Image();
+var videoTexture, videoMaterial;
 var composer;
 var shaderTime = 0;
 var badTVParams, badTVPass;

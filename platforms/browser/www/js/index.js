@@ -28,7 +28,8 @@ var app = {
     // 'pause', 'resume', etc.
     onDeviceReady: function() {
         this.receivedEvent('deviceready');
-        initMapping();
+        //initMapping();
+        var w = new waymasterUI();
 
         window.plugins.screensize.get(
             (s) => {

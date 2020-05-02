@@ -3,11 +3,11 @@
     </div>
     <script>
         class TextButton extends Control {
-            constructor(x, y, text) {
+            constructor(x, y, text, ui) {
                 super();
 
-                drawRectangle(x, y, x + text.length + 3, y + 2, 7, 8, "bevel", true, true, this);
-                drawString(text, x + 2, y + 1, 7, 0, true, this);
+                ui.drawRectangle(x, y, x + text.length + 3, y + 2, 7, 8, "bevel", true, true, this);
+                ui.drawString(text, x + 2, y + 1, 7, 0, true, this);
 
                 this._x = x;
                 this._y = y;
