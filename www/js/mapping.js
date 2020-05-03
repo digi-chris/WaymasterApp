@@ -1,6 +1,4 @@
-﻿var usingWebGl = true;
-
-function waymasterUI() {
+﻿function waymasterUI() {
     var tobj = this;
     var displayLogo = true;
     var dist = 0.003706;
@@ -36,22 +34,6 @@ function waymasterUI() {
     //video.onload = function() {
     //    videoHasLoaded = true;
     //};
-
-    function isWebGlAvailable() {
-        //usingWebGl = false;
-        //return false;
-        var canvas = document.createElement("canvas");
-        var gl = canvas.getContext("webgl")
-        || canvas.getContext("experimental-webgl");
-
-        if (gl && gl instanceof WebGLRenderingContext) {
-            usingWebGl = true;
-            return true;
-        } else {
-            usingWebGl = false;
-            return false;
-        }
-    }
 
     function getLocation() {
         if (navigator.geolocation) {

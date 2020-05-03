@@ -16,6 +16,23 @@ var gui;
 var pnoise, globalParams;
 var planeGeometry;
 var plane;
+var usingWebGl = true;
+
+function isWebGlAvailable() {
+    //usingWebGl = false;
+    //return false;
+    var canvas = document.createElement("canvas");
+    var gl = canvas.getContext("webgl")
+    || canvas.getContext("experimental-webgl");
+
+    if (gl && gl instanceof WebGLRenderingContext) {
+        usingWebGl = true;
+        return true;
+    } else {
+        usingWebGl = false;
+        return false;
+    }
+}
 
 function init() {
 
