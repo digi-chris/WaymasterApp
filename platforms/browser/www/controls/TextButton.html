@@ -12,6 +12,7 @@
                 this._x = x;
                 this._y = y;
                 this._text = text;
+                this._ui = ui;
             }
 
             click() {
@@ -27,11 +28,11 @@
             }
 
             gotFocus() {
-                drawString(" " + this._text + " ", this._x + 1, this._y + 1, 9, 14, true, this);
+                this._ui.drawString(" " + this._text + " ", this._x + 1, this._y + 1, 9, 14, true, this);
             }
 
             lostFocus() {
-                drawString(" " + this._text + " ", this._x + 1, this._y + 1, 7, 0, true, this);
+                this._ui.drawString(" " + this._text + " ", this._x + 1, this._y + 1, 7, 0, true, this);
             }
         }
     </script>
