@@ -1,6 +1,4 @@
-﻿var usingWebGl = true;
-
-function waymasterUI() {
+﻿function waymasterUI() {
     var tobj = this;
     var displayLogo = true;
     var dist = 0.003706;
@@ -21,6 +19,8 @@ function waymasterUI() {
 
     var rootURL = "https://waymaster.com";
 
+    var crtTV = new crtGL();
+
     var lat = 51.435198;
     var lng = 0.36597;
     var user_lat = lat;
@@ -36,22 +36,6 @@ function waymasterUI() {
     //video.onload = function() {
     //    videoHasLoaded = true;
     //};
-
-    function isWebGlAvailable() {
-        //usingWebGl = false;
-        return false;
-        var canvas = document.createElement("canvas");
-        var gl = canvas.getContext("webgl")
-        || canvas.getContext("experimental-webgl");
-
-        if (gl && gl instanceof WebGLRenderingContext) {
-            usingWebGl = true;
-            return true;
-        } else {
-            usingWebGl = false;
-            return false;
-        }
-    }
 
     function getLocation() {
         if (navigator.geolocation) {
@@ -166,7 +150,7 @@ function waymasterUI() {
                 //video.src = dataURL;
                 var newVideo = new Image();
                 newVideo.src = dataURL;
-                newVideo.onload = function() { videoTexture.image = newVideo; videoTexture.needsUpdate = true; };
+                newVideo.onload = function() { crtTV.updateScreen(newVideo); };
             }
         }
     }
@@ -203,9 +187,9 @@ function waymasterUI() {
         //displayLogo = false;
         if(!startedWebgl) {
             startedWebgl = true;
-            if(isWebGlAvailable()) {
-                init();
-                animate();
+            if(crtTV.isWebGlAvailable()) {
+                crtTV.init();
+                crtTV.animate();
             } else {
                 window.addEventListener('resize', onResize, false);
                 onResize();
@@ -462,8 +446,7 @@ function waymasterUI() {
         var newVideo = new Image();
         newVideo.src = dataURL;
         newVideo.onload = function () {
-            videoTexture.image = newVideo;
-            videoTexture.needsUpdate = true;
+            crtTV.updateScreen(newVideo);
             isRendering = false;
 
             if (mustRender) {
@@ -492,15 +475,12 @@ function waymasterUI() {
     function draw() {
         fontCount++;
         srcColWidth = (font.width / cW);
-        //console.log(srcColWidth);
 
         if (fontCount === 2) {
             createChars();
             getLocation();
         }
 
-        //drawRectangle(1, 1, 10, 5, 4, 15, "singleLine", true, true);
-        //drawRectangle(30, 2, 36, 7, 4, 15, "doubleLine", false, true);
         initWebControls();
     }
 

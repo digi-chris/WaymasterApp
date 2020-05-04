@@ -19,6 +19,8 @@
 
     var rootURL = "https://waymaster.com";
 
+    var crtTV = new crtGL();
+
     var lat = 51.435198;
     var lng = 0.36597;
     var user_lat = lat;
@@ -148,7 +150,7 @@
                 //video.src = dataURL;
                 var newVideo = new Image();
                 newVideo.src = dataURL;
-                newVideo.onload = function() { videoTexture.image = newVideo; videoTexture.needsUpdate = true; };
+                newVideo.onload = function() { crtTV.updateScreen(newVideo); };
             }
         }
     }
@@ -185,9 +187,9 @@
         //displayLogo = false;
         if(!startedWebgl) {
             startedWebgl = true;
-            if(isWebGlAvailable()) {
-                init();
-                animate();
+            if(crtTV.isWebGlAvailable()) {
+                crtTV.init();
+                crtTV.animate();
             } else {
                 window.addEventListener('resize', onResize, false);
                 onResize();
@@ -444,8 +446,7 @@
         var newVideo = new Image();
         newVideo.src = dataURL;
         newVideo.onload = function () {
-            videoTexture.image = newVideo;
-            videoTexture.needsUpdate = true;
+            crtTV.updateScreen(newVideo);
             isRendering = false;
 
             if (mustRender) {
@@ -474,15 +475,12 @@
     function draw() {
         fontCount++;
         srcColWidth = (font.width / cW);
-        //console.log(srcColWidth);
 
         if (fontCount === 2) {
             createChars();
             getLocation();
         }
 
-        //drawRectangle(1, 1, 10, 5, 4, 15, "singleLine", true, true);
-        //drawRectangle(30, 2, 36, 7, 4, 15, "doubleLine", false, true);
         initWebControls();
     }
 
