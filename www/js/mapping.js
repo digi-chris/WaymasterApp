@@ -61,7 +61,7 @@
                 if(results) {
                     if(results.features && results.features.length > 0) {
                         setTimeout(() => {
-                            drawString("Current Location: " + results.features[0].properties.name, 1, 1, 0, 15);
+                            tobj.drawString("Current Location: " + results.features[0].properties.name, 1, 1, 0, 15);
                         }, 5000);
                     }
                 }
@@ -320,9 +320,11 @@
     var renderTimeout = null;
 
     var canvasChars = [];
+    var charsCreated = false;
 
     function createChars() {
         var fontImage;
+
         for (var f = 0; f < 2; f++) {
             if (f === 0) {
                 fontImage = font;
@@ -360,77 +362,80 @@
                 }
             }
         }
+        charsCreated = true;
     }
 
     function drawCharacter(charCode, col, row, backgroundColor, foregroundColor, dontRender, drawOnOverlay, webControl) {
-        var charObj = null;
-        if (charCode.charCode) {
-            charObj = charCode;
-            charCode = charObj.charCode;
+        if (charsCreated) {
+            var charObj = null;
+            if (charCode.charCode) {
+                charObj = charCode;
+                charCode = charObj.charCode;
 
-            if (charObj.invert) {
-                var fColor = backgroundColor;
-                backgroundColor = foregroundColor;
-                foregroundColor = fColor;
-            }
-
-            if (charObj.background) {
-                backgroundColor = charObj.background;
-            }
-
-            if (charObj.foreground) {
-                foregroundColor = charObj.foreground;
-            }
-        }
-
-        if (col < cols && row < rows) {
-            var drawBuffer;
-
-            if (drawOnOverlay) {
-                drawBuffer = overlayBuffer;
-            } else {
-                drawBuffer = consoleBuffer;
-            }
-
-            // only bother drawing if char has changed
-            if (drawBuffer[row][col].char !== charCode || drawBuffer[row][col].foreground !== foregroundColor || drawBuffer[row][col].background !== backgroundColor) {
-                var srcRow = Math.floor(charCode / srcColWidth);
-                var srcCol = charCode - (srcRow * srcColWidth);
-                var srcX = srcCol * cW;
-                var srcY = srcRow * cH;
-
-                //bufferCtx.save();
-                //bufferCtx.clearRect(0, 0, cW, cH);
-                //bufferCtx.drawImage(font, srcX, srcY, cW, cH, 0, 0, cW, cH);
-                //bufferCtx.fillStyle = consoleChars[foregroundColor];
-                //bufferCtx.globalCompositeOperation = 'source-in';
-                //bufferCtx.fillRect(0, 0, cW, cH);
-                //bufferCtx.restore();
-
-                //ctx.drawImage(buffer, 0, 0, cW, cH, col * cW, row * cH, cW, cH);
-                drawBuffer[row][col].char = charCode;
-                drawBuffer[row][col].foreground = foregroundColor;
-                drawBuffer[row][col].background = backgroundColor;
-                drawBuffer[row][col].webControl = webControl;
-
-                if (overlayBuffer[row][col].char !== null) {
-                    ctx.fillStyle = consoleChars[overlayBuffer[row][col].background];
-                    ctx.fillRect(col * cW, row * cH, cW, cH);
-                    ctx.drawImage(canvasChars[overlayBuffer[row][col].char][overlayBuffer[row][col].foreground], 0, 0, cW, cH, col * cW, row * cH, cW, cH);
-                } else {
-                    ctx.fillStyle = consoleChars[backgroundColor];
-                    ctx.fillRect(col * cW, row * cH, cW, cH);
-                    ctx.drawImage(canvasChars[charCode][foregroundColor], 0, 0, cW, cH, col * cW, row * cH, cW, cH);
+                if (charObj.invert) {
+                    var fColor = backgroundColor;
+                    backgroundColor = foregroundColor;
+                    foregroundColor = fColor;
                 }
 
-                if (!dontRender) {
-                    //lastRender = new Date();
-                    //if (!isRendering) {
-                    //    forceRender();
-                    //} else {
-                    //    mustRender = true;
-                    //}
-                    forceRender();
+                if (charObj.background) {
+                    backgroundColor = charObj.background;
+                }
+
+                if (charObj.foreground) {
+                    foregroundColor = charObj.foreground;
+                }
+            }
+
+            if (col < cols && row < rows) {
+                var drawBuffer;
+
+                if (drawOnOverlay) {
+                    drawBuffer = overlayBuffer;
+                } else {
+                    drawBuffer = consoleBuffer;
+                }
+
+                // only bother drawing if char has changed
+                if (drawBuffer[row][col].char !== charCode || drawBuffer[row][col].foreground !== foregroundColor || drawBuffer[row][col].background !== backgroundColor) {
+                    var srcRow = Math.floor(charCode / srcColWidth);
+                    var srcCol = charCode - (srcRow * srcColWidth);
+                    var srcX = srcCol * cW;
+                    var srcY = srcRow * cH;
+
+                    //bufferCtx.save();
+                    //bufferCtx.clearRect(0, 0, cW, cH);
+                    //bufferCtx.drawImage(font, srcX, srcY, cW, cH, 0, 0, cW, cH);
+                    //bufferCtx.fillStyle = consoleChars[foregroundColor];
+                    //bufferCtx.globalCompositeOperation = 'source-in';
+                    //bufferCtx.fillRect(0, 0, cW, cH);
+                    //bufferCtx.restore();
+
+                    //ctx.drawImage(buffer, 0, 0, cW, cH, col * cW, row * cH, cW, cH);
+                    drawBuffer[row][col].char = charCode;
+                    drawBuffer[row][col].foreground = foregroundColor;
+                    drawBuffer[row][col].background = backgroundColor;
+                    drawBuffer[row][col].webControl = webControl;
+
+                    if (overlayBuffer[row][col].char !== null) {
+                        ctx.fillStyle = consoleChars[overlayBuffer[row][col].background];
+                        ctx.fillRect(col * cW, row * cH, cW, cH);
+                        ctx.drawImage(canvasChars[overlayBuffer[row][col].char][overlayBuffer[row][col].foreground], 0, 0, cW, cH, col * cW, row * cH, cW, cH);
+                    } else {
+                        ctx.fillStyle = consoleChars[backgroundColor];
+                        ctx.fillRect(col * cW, row * cH, cW, cH);
+                        ctx.drawImage(canvasChars[charCode][foregroundColor], 0, 0, cW, cH, col * cW, row * cH, cW, cH);
+                    }
+
+                    if (!dontRender) {
+                        //lastRender = new Date();
+                        //if (!isRendering) {
+                        //    forceRender();
+                        //} else {
+                        //    mustRender = true;
+                        //}
+                        forceRender();
+                    }
                 }
             }
         }
@@ -583,21 +588,30 @@
             e.consoleX = col;
             e.consoleY = row;
 
-            if (overlayBuffer[row][col].webControl) {
-                if (webControlUnderMouse !== overlayBuffer[row][col].webControl) {
+            if (overlayBuffer[row][col]) {
+                if (overlayBuffer[row][col].webControl) {
+                    if (webControlUnderMouse !== overlayBuffer[row][col].webControl) {
+                        if (webControlUnderMouse !== null) {
+                            if (webControlUnderMouse.mouseleave) {
+                                webControlUnderMouse.mouseleave();
+                            }
+                        }
+                        webControlUnderMouse = overlayBuffer[row][col].webControl;
+                        if (webControlUnderMouse.mouseenter) {
+                            webControlUnderMouse.mouseenter();
+                        }
+                    }
+
+                    if (overlayBuffer[row][col].webControl[item]) {
+                        overlayBuffer[row][col].webControl[item](e);
+                    }
+                } else {
                     if (webControlUnderMouse !== null) {
                         if (webControlUnderMouse.mouseleave) {
                             webControlUnderMouse.mouseleave();
                         }
+                        webControlUnderMouse = null;
                     }
-                    webControlUnderMouse = overlayBuffer[row][col].webControl;
-                    if (webControlUnderMouse.mouseenter) {
-                        webControlUnderMouse.mouseenter();
-                    }
-                }
-
-                if (overlayBuffer[row][col].webControl[item]) {
-                    overlayBuffer[row][col].webControl[item](e);
                 }
             } else {
                 if (webControlUnderMouse !== null) {
