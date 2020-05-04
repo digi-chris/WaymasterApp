@@ -577,8 +577,8 @@
 
     ["mousemove", "mousedown", "mouseup", "click"].forEach((item) => {
         document.body.addEventListener(item, (e) => {
-            var col = Math.floor(((e.clientX - offsetX) / screenWidth) * cols);
-            var row = Math.floor(((e.clientY - offsetY) / screenHeight) * rows);
+            var col = Math.floor(((e.clientX - crtTV.offsetX) / crtTV.screenWidth) * cols);
+            var row = Math.floor(((e.clientY - crtTV.offsetY) / crtTV.screenHeight) * rows);
 
             e.consoleX = col;
             e.consoleY = row;

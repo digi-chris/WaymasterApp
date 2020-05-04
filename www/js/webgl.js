@@ -242,10 +242,12 @@ function crtGL() {
         //stats.update();
     }
 
-    var offsetX = 0;
-    var offsetY = 0;
-    var screenWidth = 640;
-    var screenHeight = 480;
+    this.offsetX = 0;
+    this.offsetY = 0;
+    this.screenWidth = 640;
+    this.screenHeight = 480;
+
+    var tobj = this;
 
     function onResize() {
         var possibleHeight = window.innerWidth * (3 / 4);
@@ -258,10 +260,10 @@ function crtGL() {
             finalHeight = possibleHeight;
         }
 
-        offsetX = (window.innerWidth - finalWidth) / 2;
-        offsetY = (window.innerHeight - finalHeight) / 2;
-        screenWidth = finalWidth;
-        screenHeight = finalHeight;
+        tobj.offsetX = (window.innerWidth - finalWidth) / 2;
+        tobj.offsetY = (window.innerHeight - finalHeight) / 2;
+        tobj.screenWidth = finalWidth;
+        tobj.screenHeight = finalHeight;
 
         if (usingWebGl) {       
             //filmParams.count = finalHeight * 2;
@@ -272,8 +274,8 @@ function crtGL() {
             camera.position.z = finalHeight - (14 * (finalHeight / 400));
             camera.updateProjectionMatrix();
             renderer.domElement.style.position = "absolute";
-            renderer.domElement.style.left = offsetX + 'px';
-            renderer.domElement.style.top = offsetY + 'px';
+            renderer.domElement.style.left = tobj.offsetX + 'px';
+            renderer.domElement.style.top = tobj.offsetY + 'px';
             onParamsChange();
         } else {
             document.getElementById('stage').style.width = finalWidth + 'px';
